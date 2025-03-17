@@ -13,6 +13,7 @@ set -euo pipefail
 #==============================================================#
 PROG_NAME="$(basename $0)"
 PROG_DIR="$(cd $(dirname $0) && pwd)"
+FILE='/etc/sysctl.d/hugepage.conf'
 
 
 #--------------------------------------------------------------#
@@ -21,7 +22,9 @@ PROG_DIR="$(cd $(dirname $0) && pwd)"
 # pg-hugepage-tune
 #
 # it will query shared_memory_size_in_huge_pages from postgres
-# and set `vm.nr_hugepages` to that value in /etc/sysctl.conf
+# and set parameters to /etc/sysctl.d/hugepage.conf
+#   - `vm.nr_hugepages`
+#   - `vm.hugetlb_shm_group`
 #--------------------------------------------------------------#
 
 
@@ -35,13 +38,14 @@ else
     NR_HUGEPAGE=$(sudo -iu postgres psql -qwAXtc 'show shared_memory_size_in_huge_pages')
 fi
 
-# check if result is acquired
-if [[ -z "${NR_HUGEPAGE}" ]]; then
+# check if result is acquired. if huge pages are not supported, this will be -1
+if [[ -z "${NR_HUGEPAGE}" ]] || [[ ${NR_HUGEPAGE} -lt 0 ]] ; then
     echo "[FAIL] fail to acquire shared_memory_size_in_huge_pages from postgres"
     exit 1
-else
-    echo "echo vm.nr_hugepages=${NR_HUGEPAGE} >> /etc/sysctl.conf"
 fi
+
+gid=$(id -g postgres)
+
 
 #--------------------------------------------------------------#
 # Execute
@@ -59,24 +63,32 @@ function can_nopass_sudo(){
 
 if ! can_nopass_sudo; then
     echo "[FAIL] root or sudo is required to write sysctl parameter"
-    echo "[HINT] $ echo vm.nr_hugepages=${NR_HUGEPAGE} > /etc/sysctl.d/hugepage.conf"
-    echo "[HINT] $ sysctl -p /etc/sysctl.d/hugepage.conf"
+    echo "[HINT] $ echo vm.nr_hugepages=${NR_HUGEPAGE} > ${FILE}"
+    echo "[HINT] $ sysctl -p ${FILE}"
     exit 2
 fi
 
 echo "[BEFORE]============================"
-cat /proc/meminfo | grep HugePages
+cat /proc/meminfo | grep Huge
 sysctl -a | grep vm.nr_hugepages
 
 # write param
 DIRECTIVE="vm.nr_hugepages=${NR_HUGEPAGE}"
-echo "[EXEC] $ echo vm.nr_hugepages=${NR_HUGEPAGE} > /etc/sysctl.d/hugepage.conf"
-sudo bash -c "echo ${DIRECTIVE} > /etc/sysctl.d/hugepage.conf"
+echo "[EXEC] $ echo $DIRECTIVE > ${FILE}"
+sudo bash -c "echo ${DIRECTIVE} > ${FILE}"
 
 # apply change
-echo "[HINT] $ sysctl -p /etc/sysctl.d/hugepage.conf"
-sudo sysctl -p /etc/sysctl.d/hugepage.conf
+echo "[HINT] $ sysctl -p ${FILE}"
+sudo sysctl -p ${FILE}
+
+if [[ -n $gid ]]; then
+  DIRECTIVE2="vm.hugetlb_shm_group=$gid"
+  # Restrict hugepage used by postgres only
+  echo "[EXEC] $ echo ${DIRECTIVE2} >> ${FILE}"
+  sudo bash -c "echo ${DIRECTIVE2} >> ${FILE}"
+fi
 
 echo "[AFTER]============================"
-cat /proc/meminfo | grep HugePages
+cat /proc/meminfo | grep Huge
 sysctl -a | grep vm.nr_hugepages
+sysctl -a | grep vm.hugetlb_shm_group
