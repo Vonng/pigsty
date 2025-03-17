@@ -1,11 +1,19 @@
 ---
 #--------------------------------------------------------------#
 # Enable hugepage for pg and restart pg cluster    [pg_hugepage]
-# if `node_hugepage_count` or `node_hugepage_ratio` changed, it will full backup the pg_cls and restart it gracefully
+# if `node_hugepage_count` or `node_hugepage_ratio` changed,
+# it will full backup the pg_cls and restart it gracefully
 # support usage:
 #   - `pig install`
 #   - `bin/pgsql-add <pg_cls>`
+#   - `bin/pgsql-add <pg_cls> <ip>`
+#      service of nodes in ansible_play_hosts_all will be unavailable during the process,
+#      other nodes in the same pg_cls ignored
 #   - `pgsql.yml -l <pg_cls> -t pg_hugepage`
+#      entire service of this postgres cluster will be unavailable during the process
+#   - `pgsql.yml -l '<ip>,&<pg_cls>' -t pg_hugepage`
+#      service of nodes in ansible_play_hosts_all will be unavailable during the process,
+#      other nodes in the same pg_cls ignored
 #--------------------------------------------------------------#
 # calculation rules:
 #   1. `shared_memory_size_in_huge_pages` (from PG15+): if `node_hugepage_count` is -1 and huge_pages (from PG) != off
