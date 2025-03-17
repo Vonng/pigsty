@@ -25,10 +25,10 @@
 
 {% if alertmanager_enabled|bool %}
 #--------------------------------------------------------------#
-# AlertManager (9093)
+# AlertManager ({{ alertmanager_port|default(9093) }})
 #--------------------------------------------------------------#
 - labels: { ip: {{ inventory_hostname }}, ins: alertmanager-{{ infra_seq }}, cls: alertmanager }
-  targets: [ {{ inventory_hostname }}:9093 ]
+  targets: [ {{ inventory_hostname }}:{{ alertmanager_port|default(9093) }} ]
 {% endif %}
 
 {% if blackbox_enabled|bool %}
