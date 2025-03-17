@@ -1293,11 +1293,12 @@ INSERT INTO pigsty.default_var VALUES
 (159, 'pushgateway_options', '"--persistence.interval=1m"', 'INFRA', 'PROMETHEUS', 'arg', 'G', 'pushgateway extra server options', NULL),
 (160, 'blackbox_enabled', 'true', 'INFRA', 'PROMETHEUS', 'bool', 'G/I', 'setup blackbox_exporter on this infra node?', NULL),
 (161, 'blackbox_options', '""', 'INFRA', 'PROMETHEUS', 'arg', 'G', 'blackbox_exporter extra server options', NULL),
-(162, 'alertmanager_enabled', 'true', 'INFRA', 'PROMETHEUS', 'bool', 'G/I', 'setup alertmanager on this infra node?', NULL),
-(163, 'alertmanager_options', '""', 'INFRA', 'PROMETHEUS', 'arg', 'G', 'alertmanager extra server options', NULL),
-(164, 'exporter_metrics_path', '"/metrics"', 'INFRA', 'PROMETHEUS', 'path', 'G', 'exporter metric path, `/metrics` by default', NULL),
-(165, 'exporter_install', '"none"', 'INFRA', 'PROMETHEUS', 'enum', 'G', 'how to install exporter? none,yum,binary', NULL),
-(166, 'exporter_repo_url', '""', 'INFRA', 'PROMETHEUS', 'url', 'G', 'exporter repo file url if install exporter via yum', NULL),
+(164, 'alertmanager_enabled', 'true', 'INFRA', 'PROMETHEUS', 'bool', 'G/I', 'setup alertmanager on this infra node?', NULL),
+(165, 'alertmanager_port', '9093', 'INFRA', 'PROMETHEUS', 'port', 'G', 'alertmanager listen port, 9093 by default', NULL),
+(166, 'alertmanager_options', '""', 'INFRA', 'PROMETHEUS', 'arg', 'G', 'alertmanager extra server options', NULL),
+(167, 'exporter_metrics_path', '"/metrics"', 'INFRA', 'PROMETHEUS', 'path', 'G', 'exporter metric path, `/metrics` by default', NULL),
+(168, 'exporter_install', '"none"', 'INFRA', 'PROMETHEUS', 'enum', 'G', 'how to install exporter? none,yum,binary', NULL),
+(169, 'exporter_repo_url', '""', 'INFRA', 'PROMETHEUS', 'url', 'G', 'exporter repo file url if install exporter via yum', NULL),
 
 (170, 'grafana_enabled', 'true', 'INFRA', 'GRAFANA', 'bool', 'G/I', 'enable grafana on this infra node?', NULL),
 (171, 'grafana_clean', 'true', 'INFRA', 'GRAFANA', 'bool', 'G/A', 'clean grafana data during init?', NULL),
@@ -1385,11 +1386,13 @@ INSERT INTO pigsty.default_var VALUES
 
 -- DOCKER PARAMETERS
 (400, 'docker_enabled', 'false', 'NODE', 'DOCKER', 'bool', 'C', 'enable docker on this node?', NULL),
-(401, 'docker_cgroups_driver', '"systemd"', 'DOCKER', 'DOCKER', 'enum', 'C', 'docker cgroup fs driver: cgroupfs,systemd', NULL),
-(402, 'docker_registry_mirrors', '[]', 'DOCKER', 'DOCKER', 'string[]', 'C', 'docker registry mirror list', NULL),
-(403, 'docker_exporter_port', '9323', 'DOCKER', 'DOCKER', 'port', 'G', 'docker metrics exporter port, 9323 by default', NULL),
-(404, 'docker_image', '[]', 'DOCKER', 'DOCKER', 'path', 'C', 'docker image to be pulled, empty list by default', NULL),
-(405, 'docker_image_cache', '"/tmp/docker/*.tgz"', 'DOCKER', 'DOCKER', 'path', 'C', 'docker image cache tarball glob, /tmp/docker/*.tgz by default', NULL),
+(401, 'docker_data', '"/var/lib/docker"', 'DOCKER', 'DOCKER', 'path', 'G/C/I', 'docker data directory, /var/lib/docker by default', NULL),
+(402, 'docker_storage_driver', '"overlay2"', 'DOCKER', 'DOCKER', 'enum', 'C', 'docker storage driver, overlay2 by default', NULL),
+(403, 'docker_cgroups_driver', '"systemd"', 'DOCKER', 'DOCKER', 'enum', 'C', 'docker cgroup fs driver: cgroupfs,systemd', NULL),
+(404, 'docker_registry_mirrors', '[]', 'DOCKER', 'DOCKER', 'string[]', 'C', 'docker registry mirror list', NULL),
+(405, 'docker_exporter_port', '9323', 'DOCKER', 'DOCKER', 'port', 'G', 'docker metrics exporter port, 9323 by default', NULL),
+(406, 'docker_image', '[]', 'DOCKER', 'DOCKER', 'path', 'C', 'docker image to be pulled, empty list by default', NULL),
+(407, 'docker_image_cache', '"/tmp/docker/*.tgz"', 'DOCKER', 'DOCKER', 'path', 'C', 'docker image cache tarball glob, /tmp/docker/*.tgz by default', NULL),
 
 -- ETCD PARAMETERS
 (501, 'etcd_seq', NULL, 'ETCD', 'ETCD', 'int', 'I', 'etcd instance identifier, REQUIRED', NULL),
