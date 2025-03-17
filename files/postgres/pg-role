@@ -3,14 +3,16 @@
 # File      :   pg-role
 # Desc      :   fetch pgsql instance role using different approach
 # Ctime     :   2020-05-16
-# Mtime     :   2024-05-17
+# Mtime     :   2025-03-17
 # Path      :   /pg/bin/pg-role
-# Depend    :   psql
+# Depend    :   psql, sudo, ps
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
 #==============================================================#
 import os, pwd
 
+import os
+import pwd
 
 def get_user():
     try:
@@ -26,13 +28,11 @@ def role_result(pg_alive, pg_role, source):
         "source": source
     }
 
-
-# run this as postgres or root.
+# run this as any users
 def pg_role_from_ps():
     """
-    infer postgres role from process list
-    this method guaranteed to report a result, but may not authorize as psql result
-    :return: primary | replica | None
+    Infer postgres role from process list.
+    This method should always return a result (though maybe None).
     """
     processes = [i.rstrip('\n') for i in os.popen('ps h -u postgres -o command')]
     pg_alive = False
@@ -97,7 +97,7 @@ def pg_role_from_pgdata(pgdata="/pg/data"):
     try:
         flist = os.listdir(pgdata)
     except:
-        return role_result(pg_alive, pg_role, "psql")
+        return role_result(pg_alive, pg_role, "pgdata")
 
     # set default
     pg_alive = False
@@ -107,11 +107,11 @@ def pg_role_from_pgdata(pgdata="/pg/data"):
     for f in flist:
         if f == 'postmaster.pid':
             pg_alive = True  # maybe
-        if f == 'standby.signal':
+        if f == 'standby.signal' or f == 'recovery.signal':
             pg_role = 'replica'
         if f == 'recovery.conf':
             try:
-                for line in open(os.path.join(pgdata, 'recovery.conf')).readline():
+                for line in open(os.path.join(pgdata, 'recovery.conf')).readlines():
                     if line.startswith('primary_conninfo') or line.startswith('restore_command'):
                         pg_role = 'replica'
             except:
@@ -122,8 +122,10 @@ def pg_role_from_pgdata(pgdata="/pg/data"):
 
 def get_pg_role():
     """
-    get pg role and aliveness from multiple sources
-    :return:  (pg_alive, pg_role, source)
+    Try multiple ways to get role:
+      1) From ps
+      2) If alive => cross-check by psql (wins if conflict)
+      3) If not alive => from pgdata
     """
     pg_alive, pg_role, source = None, None, None
     role_ps, role_psql, role_pgdata = None, None, None
@@ -145,7 +147,7 @@ def get_pg_role():
         return role_result(pg_alive, pg_role, source)
 
     # if pg is dead , infer role from pg_data
-    # this requires run as postgres or root
+    # this requires running as postgres or root
     role_pgdata = pg_role_from_pgdata("/pg/data")
     if role_pgdata["role"] is not None:
         pg_role, source = role_pgdata["role"], role_pgdata["source"]
