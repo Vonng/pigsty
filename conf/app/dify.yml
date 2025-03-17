@@ -46,8 +46,12 @@ all:
               PGVECTOR_DATABASE: dify
               PGVECTOR_MIN_CONNECTION: 2
               PGVECTOR_MAX_CONNECTION: 10
-              NGINX_SERVER_NAME: localhost
+              NGINX_SERVER_NAME: dify.pigsty.io
               DIFY_PORT: 5001 # expose DIFY nginx service with port 5001 by default
+
+              SANDBOX_HTTP_PROXY: http://10.10.10.10:12345
+              SANDBOX_HTTPS_PROXY: http://10.10.10.10:12345
+
               #STORAGE_TYPE: s3
               #S3_ENDPOINT: 'https://sss.pigsty'
               #S3_BUCKET_NAME: 'dify'
@@ -94,9 +98,9 @@ all:
       blackbox     : { endpoint: "${admin_ip}:9115" }
       loki         : { endpoint: "${admin_ip}:3100" }
       minio        : { domain: m.pigsty    ,endpoint: "${admin_ip}:9001" ,scheme: https ,websocket: true }
-      dify: { domain: dify.pigsty ,endpoint: "10.10.10.10:5001" ,websocket: true }
+      dify: { domain: dify.pigsty.io ,endpoint: "10.10.10.10:5001" ,websocket: true }
       # setup your own domain name here ^^^, or use default domain name, or ip + 5001 port direct access
-      # certbot --nginx --agree-tos --email your@email.com -n -d dify.your.domain    # replace with your email & dify domain
+      # certbot --nginx --agree-tos --email your@email.com -n -d dify.pigsty.io    # replace with your email & dify domain
 
     #----------------------------------#
     # Credential: CHANGE THESE PASSWORDS
@@ -116,8 +120,8 @@ all:
     #minio_access_key: minioadmin
     minio_secret_key: minioadmin      # minio root secret key, `minioadmin` by default
 
-    # use minio as supabase file storage, single node single driver mode for demonstration purpose
-    minio_buckets: [ { name: pgsql }, { name: supa } ]
+    # use minio as dify file storage, single node single driver mode for demonstration purpose
+    minio_buckets: [ { name: pgsql }, { name: dify } ]
     minio_users:
       - { access_key: dba , secret_key: S3User.DBA, policy: consoleAdmin }
       - { access_key: pgbackrest , secret_key: S3User.Backup ,policy: readwrite }
