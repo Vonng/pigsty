@@ -53,28 +53,28 @@
     pg_role: "{{ pg_role_runtime }}"
     dbsu: "{{ pg_dbsu|default('postgres') }}"
   block:
-    - name: patroni pause gracefully
+    - name: 1. patroni pause gracefully {{ pg_cluster }}
       include_tasks: util/grace_patroni_pause.yml
       run_once: true
 
     - import_tasks: util/patroni_restart_cls.yml
 
-    - name: check pg ready
+    - name: 2. check pg ready once {{ pg_cluster }}
       include_tasks: util/check_pg_ready.yml
       run_once: true
 
-    - name: patroni resume pg_cls gracefully
+    - name: 3.patroni resume pg_cls gracefully {{ pg_cluster }}
       import_tasks: util/grace_patroni_resume.yml
       run_once: true
 
-    - name: print message
+    - name: 4. print message
       debug:
-        msg: finally, check if all postgres is ready
+        msg: finally, check if all postgres is ready {{ pg_cluster }}
 
     # finally, check if all postgres is ready
     - import_tasks: util/check_pg_ready.yml
 
-    - name: re-set variable pt_restart to false
+    - name: 5. re-set variable pt_restart to false
       set_fact:
         pt_restart: false
 
