@@ -6,16 +6,26 @@
 - name: write hugepage sysctl parameter if needed
   become: yes
   when: new_nr_hugepages is defined
+  vars:
+    pg_hugetlb_shm_group: ''
   block:
+    - name: set variable pg_hugetlb_shm_group if needed
+      when:
+        - pg_dbsu_gid is defined and pg_dbsu_gid|int > 0
+        - pg_shared_memory_size_in_huge_pages is defined
+        - new_nr_hugepages|int == pg_shared_memory_size_in_huge_pages|int
+      set_fact:
+        pg_hugetlb_shm_group: "vm.hugetlb_shm_group = {{ pg_dbsu_gid }}"
+      changed_when: false
+
     - name: write hugepage sysctl parameter
       vars:
         txt: |
           vm.nr_hugepages = {{ new_nr_hugepages }}
+          {{ pg_hugetlb_shm_group }}
       copy:
         dest: /etc/sysctl.d/hugepage.conf
-        # write txt first line to /etc/sysctl.d/hugepage.conf
-        content: |
-          {{ txt.split('\n')[0] }}
+        content: "{{ txt }}"
 
     - name: activate tuned profile, prepare for database performance impact!
       args: { executable: /bin/bash }

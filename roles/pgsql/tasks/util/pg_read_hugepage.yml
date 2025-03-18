@@ -118,4 +118,15 @@
       {{ curr_nr_hugepages_cmd.stdout|int }}
       {% else %}0{% endif %}
 
+- name: get gid from {{ pg_dbsu }}
+  command: /usr/bin/id -g {{ pg_dbsu }}
+  register: get_gid_cmd
+  ignore_errors: true
+
+- name: set variable pg_dbsu_gid
+  when: get_gid_cmd.rc == 0
+  set_fact:
+    pg_dbsu_gid: "{{ get_gid_cmd.stdout }}"
+  changed_when: false
+
 ...
