@@ -8,21 +8,12 @@
   vars:
     dbsu: "{{ pg_dbsu|default('postgres') }}"
   block:
-    # if ansible_play_hosts_all contains primary node, restart all nodes at primary
-    - name: restart all nodes of {{ pg_cluster }} at primary
+    - name: restart primary of {{ pg_cluster }}
       when: pg_role == 'primary'
-      include_tasks: patroni_restart_at_primary.yml
+      include_tasks: patroni_restart.yml
 
-    - name: set variable need_restart_at_replica at all nodes
-      set_fact:
-        need_restart_at_replica: "{{ not (hostvars[pg_primary_host_runtime].pt_restart_full_succeed | default(false) | string | trim | bool) }}"
-      changed_when: false
-
-    # if ansible_play_hosts_all not contains primary node,
-    # or primary node restart failed,
-    # restart affected replica nodes at replica
-    - name: patroni restart ansible_play_hosts_all at replica if needed
-      include_tasks: patroni_restart_at_replica.yml
-      when: pg_role != 'primary' and need_restart_at_replica == true
+    - name: patroni restart replica of {{ pg_cluster }}
+      include_tasks: patroni_restart.yml
+      when: pg_role != 'primary'
 
 ...
