@@ -45,7 +45,7 @@
       changed_when: false
 
 
-- name: patroni restart pg_cls gracefully
+- name: 0. patroni restart pg_cls gracefully
   tags: [ pg_hugepage, patroni, pg_launch, pt_restart ]
   when: patroni_mode != 'remove'
   become_user: "{{ dbsu }}"
@@ -60,12 +60,11 @@
     - name: 2. patroni restart pg_cls {{ pg_cluster }}
       include_tasks: util/patroni_restart_cls.yml
 
-    - name: 3. check pg ready once {{ pg_cluster }}
+    - name: 3. check pg ready {{ pg_cluster }}
       include_tasks: util/check_pg_ready.yml
-      run_once: true
 
     - name: 4.patroni resume pg_cls gracefully {{ pg_cluster }}
-      import_tasks: util/grace_patroni_resume.yml
+      include_tasks: util/grace_patroni_resume.yml
       run_once: true
 
     - name: 5. print message
