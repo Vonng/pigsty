@@ -59,9 +59,10 @@
            pt_restart: {{ pt_restart|bool }}
       changed_when: false
 
-    - name: full backup pg before hugepage update if has primary
+    # full back if contains primary, otherwise backup (full or incremental) at primary
+    - name: pg-backup before update hugepage
       include_tasks: util/pg_backup.yml
-      when: hugepages_need_update|bool and pg_role == 'primary'
+      when: hugepages_need_update|bool
 
     - name: update hugepage
       include_tasks: util/pg_write_hugepage.yml
