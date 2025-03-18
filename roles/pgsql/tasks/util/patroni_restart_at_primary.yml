@@ -1,5 +1,8 @@
 #!/usr/bin/ansible-playbook
 ---
+#--------------------------------------------------------------#
+# patroni restart **all** nodes of pg_cluster at primary
+#--------------------------------------------------------------#
 
 - name: patroni restart primary pg_cluster at primary
   tags: [ pg_hugepage, patroni, pg_launch, pt_restart ]
@@ -17,10 +20,12 @@
       register: patroni_restart_cmd
 
     - name: set pt_restart_full_succeed
-      when: patroni_restart_cmd is defined and (patroni_restart_cmd.rc == 0 and patroni_restart_cmd.stdout.find('Failed') == -1)
+      when:
+        - patroni_restart_cmd is defined
+        - patroni_restart_cmd.rc == 0
+        - patroni_restart_cmd.stdout.find('Failed') == -1
       set_fact:
         pt_restart_full_succeed: true
-      # delegate_to: localhost
 
     - name: print result if failed at primary
       debug:
@@ -34,11 +39,17 @@
     - name: print result if succeed but contains 'Failed' at primary
       debug:
         var: patroni_restart_cmd.stdout_lines
-      when: patroni_restart_cmd is defined and (patroni_restart_cmd.rc == 0 and patroni_restart_cmd.stdout.find('Failed') != -1)
+      when:
+        - patroni_restart_cmd is defined
+        - patroni_restart_cmd.rc == 0
+        - patroni_restart_cmd.stdout.find('Failed') != -1
       changed_when: false
 
     - name: sleep after patroni restart
-      when: patroni_restart_cmd is defined and (patroni_restart_cmd.rc == 0 and patroni_restart_cmd.stdout.find('Failed') != -1)
+      when:
+        - patroni_restart_cmd is defined
+        - patroni_restart_cmd.rc == 0
+        - patroni_restart_cmd.stdout.find('Failed') != -1
       args: { executable: /bin/bash }
       shell: |
         sync; sync;

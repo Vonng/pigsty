@@ -1,12 +1,15 @@
 #!/usr/bin/ansible-playbook
 ---
+#--------------------------------------------------------------#
+# patroni restart affected replica nodes at replica individually
+#--------------------------------------------------------------#
 
 - name: patroni restart {{ pg_cluster }} at replica individually
   tags: [ pg_hugepage, patroni, pg_launch, pt_restart ]
   become_user: "{{ dbsu }}"
-  when: pg_role != 'primary'
+  when: patroni_mode != 'remove' and pg_role != 'primary'
   block:
-    - name: retrieve current patroni member at {{ pg_role }} of {{ pg_cluster }}
+    - name: retrieve current patroni replica member of {{ pg_cluster }}
       command: /pg/bin/pg-member
       register: pg_member_name_cmd
 
@@ -15,13 +18,16 @@
         curr_pg_member_name: "{{ pg_member_name_cmd.stdout | default('') | trim }}"
       changed_when: false
 
-    - name: restart patroni member replica of {{ pg_cluster }}
+    - name: restart patroni replica member of {{ pg_cluster }}
       when: curr_pg_member_name is defined and curr_pg_member_name|length>0
       command: /usr/bin/patronictl -c /pg/bin/patroni.yml restart --force {{ pg_cluster }} {{ curr_pg_member_name }}
       register: patroni_restart_cmd
 
     - name: print result if failed at replica
-      when: patroni_restart_cmd is defined and patroni_restart_cmd.rc is defined and patroni_restart_cmd.rc != 0
+      when:
+        - patroni_restart_cmd is defined
+        - patroni_restart_cmd.rc is defined
+        - patroni_restart_cmd.rc != 0
       debug:
         msg: |
           rc: {{ patroni_restart_cmd.rc }},

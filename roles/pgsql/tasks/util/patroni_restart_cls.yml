@@ -2,12 +2,14 @@
 ---
 
 - name: patroni restart cls {{ pg_cluster }}
+  tags: [ pg_hugepage, patroni, pg_launch, pt_restart ]
   become_user: "{{ dbsu }}"
   when: patroni_mode != 'remove'
   vars:
     dbsu: "{{ pg_dbsu|default('postgres') }}"
   block:
-    - name: restart {{ pg_cluster }} at primary
+    # if ansible_play_hosts_all contains primary node, restart all nodes at primary
+    - name: restart all nodes of {{ pg_cluster }} at primary
       when: pg_role == 'primary'
       include_tasks: patroni_restart_at_primary.yml
 
@@ -16,7 +18,10 @@
         need_restart_at_replica: "{{ not (hostvars[pg_primary_host_runtime].pt_restart_full_succeed | default(false) | string | trim | bool) }}"
       changed_when: false
 
-    - name: patroni restart at replica of {{ pg_cluster }} if needed {{ need_restart_at_replica }}
+    # if ansible_play_hosts_all not contains primary node,
+    # or primary node restart failed,
+    # restart affected replica nodes at replica
+    - name: patroni restart ansible_play_hosts_all at replica if needed
       include_tasks: patroni_restart_at_replica.yml
       when: pg_role != 'primary' and need_restart_at_replica == true
 

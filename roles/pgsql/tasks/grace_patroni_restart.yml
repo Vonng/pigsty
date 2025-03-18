@@ -57,24 +57,25 @@
       include_tasks: util/grace_patroni_pause.yml
       run_once: true
 
-    - import_tasks: util/patroni_restart_cls.yml
+    - name: 2. patroni restart pg_cls {{ pg_cluster }}
+      include_tasks: util/patroni_restart_cls.yml
 
-    - name: 2. check pg ready once {{ pg_cluster }}
+    - name: 3. check pg ready once {{ pg_cluster }}
       include_tasks: util/check_pg_ready.yml
       run_once: true
 
-    - name: 3.patroni resume pg_cls gracefully {{ pg_cluster }}
+    - name: 4.patroni resume pg_cls gracefully {{ pg_cluster }}
       import_tasks: util/grace_patroni_resume.yml
       run_once: true
 
-    - name: 4. print message
+    - name: 5. print message
       debug:
         msg: finally, check if all postgres is ready {{ pg_cluster }}
 
     # finally, check if all postgres is ready
     - import_tasks: util/check_pg_ready.yml
 
-    - name: 5. re-set variable pt_restart to false
+    - name: 6. re-set variable pt_restart to false
       set_fact:
         pt_restart: false
 
