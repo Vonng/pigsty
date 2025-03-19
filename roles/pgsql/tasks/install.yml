@@ -13,7 +13,7 @@
     # if found, the value will be used instead of the key
     # if not found, the key will be not modified, and used as raw extension name
     - name: lookup pg packages & extensions names
-      tags: pg_extension
+      tags: [pg_extension, pg_ext]
       become: no
       connection: local
       set_fact:
@@ -79,10 +79,48 @@
 # Setup bin path                                       [pg_path]
 #--------------------------------------------------------------#
 # soft link pgsql bin dir to specific pgsql binary version according to pg_mode
-- name: link pg bin dir to current version
+- name: setup pg path
   tags: pg_path
-  file: src="{{ pg_home_dir }}" dest={{ pg_bin_dir | dirname }} state=link
-  vars: { pg_home_dir: "{{ pg_home_map[pg_mode] | replace('$v', pg_version) | replace('${pg_version}', pg_version )}}" }
+  block:
+
+    # fix legacy issue such as ivorysql dir has minor version in path
+    - name: normalize postgres home dir
+      ignore_errors: true
+      shell: |
+        {% if pg_mode == 'pgsql' or pg_mode == 'citus' %}
+        {% if os_package|default('rpm') == 'deb' %}
+        ln -snf /usr/lib/postgresql/{{ pg_version|default(17) }} /usr/pgsql-{{ pg_version|default(17) }}
+        {% endif %}
+        {% elif pg_mode == 'polar' or pg_mode == 'oracle' %}
+        ln -snf /u01/polardb_pg /usr/polar-{{ pg_version|default(17) }}
+        {% elif pg_mode == 'mssql' %}
+        {% if os_package|default('rpm') == 'deb' %}
+        ln -snf /usr/lib/postgresql/{{ pg_version|default(17) }} /usr/pgsql-{{ pg_version|default(17) }}
+        {% else %}
+        # TODO: link mssql in EL systems
+        {% endif %}
+        {% elif pg_mode == 'ivory' %}
+        ivorysql_major=$(({{ pg_version | default(17) | int }} - 13))
+        ivory_dir="$(ls -1d /opt/IvorySQL-${ivorysql_major}.* 2>/dev/null | sort -V | tail -n1)"
+        if [ -z "$ivory_dir" ]; then
+            echo "No IvorySQL directory found for /opt/IvorySQL-${ivorysql_major}.*"
+            exit 1
+        fi
+        target="/usr/ivory-{{ pg_version|default(17) }}"
+        if [ -L "$target" ]; then
+            current="$(readlink -f "$target")"
+            if [ "$current" = "$ivory_dir" ]; then
+                exit 0
+            fi
+        fi
+        ln -snf "$ivory_dir" "$target"
+        {% endif %}
+        /bin/true;
+      args: { executable: /bin/bash }
+
+    - name: link postgres home
+      file: src="{{ pg_home_dir }}" dest={{ pg_bin_dir | dirname }} state=link
+      vars: { pg_home_dir: "{{ pg_home_map[pg_mode] | replace('$v', pg_version) | replace('${pg_version}', pg_version )}}" }
 
 
 #--------------------------------------------------------------#
