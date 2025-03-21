@@ -8,7 +8,7 @@ Specs = [
   # Debian 12.9
   { "name" => "d12",    "ip" => "10.10.10.12",  "cpu" => "1",  "mem" => "2048",  "image" =>  "debian/bookworm64"      },
 
-  # Ubuntu 22.04.5
-  { "name" => "u22",    "ip" => "10.10.10.22",  "cpu" => "1",  "mem" => "2048",  "image" =>  "alvistack/ubuntu-22.04" },
+  # Ubuntu 22.04.3
+  { "name" => "u22",    "ip" => "10.10.10.22",  "cpu" => "1",  "mem" => "2048",  "image" =>  "generic/ubuntu2204"     },
 
 ]
