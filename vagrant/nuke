@@ -2,9 +2,9 @@
 
 # ==============================================================#
 # File      :   nuke
-# Desc      :   nuke vagrant VMs with virsh
+# Desc      :   nuke vagrant VMs/Disks with virsh (DANGEROUS!)
 # Ctime     :   2023-07-29
-# Mtime     :   2023-09-01
+# Mtime     :   2025-03-21
 # Path      :   vagrant/nuke
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
@@ -22,16 +22,16 @@ fi
 # this will destroy all vagrant VMs and Volumes, DO USE WITH CAUTION!
 echo "====================================="
 echo "destroy and undefine all vagrant VMs"
-virsh list --all | grep vagrant
-virsh list --all | grep vagrant | awk '{print $2}' | xargs -I {} virsh destroy {}
-virsh list --all | grep vagrant | awk '{print $2}' | xargs -I {} virsh undefine {}
-virsh list --all | grep vagrant
+virsh list --all | grep "vagrant_"
+virsh list --all | grep "vagrant_" | awk '{print $2}' | xargs -I {} virsh destroy {}
+virsh list --all | grep "vagrant_" | awk '{print $2}' | xargs -I {} virsh undefine {}
+virsh list --all | grep "vagrant_"
 
 echo "====================================="
 echo "destroy and undefine all vagrant volumes"
-virsh vol-list default | grep -v generic | grep vagrant | awk '{print $1}'
-virsh vol-list default | grep -v generic | grep vagrant | awk '{print $1}' | xargs -I {} virsh vol-delete --pool default {}
-virsh vol-list default | grep -v generic | grep vagrant | awk '{print $1}'
+virsh vol-list default | grep '^ vagrant_' | awk '{print $1}'
+virsh vol-list default | grep '^ vagrant_' | awk '{print $1}' | xargs -I {} virsh vol-delete --pool default {}
+virsh vol-list default | grep '^ vagrant_' | awk '{print $1}'
 
 
 echo "====================================="
