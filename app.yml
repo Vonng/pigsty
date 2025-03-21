@@ -4,12 +4,41 @@
 # File      :   app.yml
 # Desc      :   copy and launch docker compose app
 # Ctime     :   2025-01-11
-# Mtime     :   2025-02-24
+# Mtime     :   2025-03-21
 # Path      :   app.yml
 # Docs      :   https://pigsty.io/docs/app
 # License   :   AGPLv3 @ https://pigsty.io/docs/about/license
 # Copyright :   2018-2025  Ruohang Feng / Vonng (rh@vonng.com)
 #==============================================================#
+
+
+#--------------------------------------------------------------#
+# Usage
+#--------------------------------------------------------------#
+#  1.  specify the `app` param
+#      by default, it's a docker compose app in the app/ folder
+#      configure it in the pigsty.yml or pass it as `-e app=<name>`
+#
+#  2.  OPTIONAL, specify app details with apps:
+#
+#  This playbook relies on the DOCKER module to work
+#  This playbook will:
+#   1. copy docker compose resource from app/<appname> to /opt/<appname>
+#   2. create required dirs with app.file (optional)
+#   3. overwrite .env config with app.conf (optional)
+#   4. launch app with docker compose up
+#
+#--------------------------------------------------------------#
+# Example
+#--------------------------------------------------------------#
+#  ./app.yml -e app=pgweb          # simple app can be launched directly
+#  ./app.yml -e app=pgadmin        # without any further configuration
+#
+#  ./app.yml -e app=bytebase       # sophiscated software that reqire
+#  ./app.yml -e app=supabase       # external postgres and extra config
+#  ./app.yml -e app=odoo           # configure pigsty.yml and apps for
+#  ./app.yml -e app=dify           # fine-grained control
+#--------------------------------------------------------------#
 
 - name: NODE ID
   become: yes
@@ -33,31 +62,42 @@
       tags: [ app_check, preflight, always ]
       connection: local
       block:
-        - name: validate app and apps parameter
+        - name: validate app  parameter
           assert:
             that:
               - app is defined
               - app != ''
-              - apps is defined
-              - apps is mapping
-              - app in apps
-            fail_msg: "'app' and 'apps' should be specified (-e app=<name in apps>)"
+            fail_msg: "the 'app' arg is not given (-e app=<name>)"
+
+        - name: validate docker exists
+          assert:
+            that:
+              - docker_enabled is defined and docker_enabled
+            fail_msg: "docker_enabled is required to install app"
 
         - name: fetch app definition
           set_fact:
-            app_def: "{{ apps[app] }}"
-            app_src: "{{ playbook_dir }}/app/{{ apps[app].src | default(app) }}" # override src name with app.src
-            app_dest: "/opt/{{ apps[app].name | default(app) }}"                 # override dest name with app.dest
-            app_conf: "{{ apps[app].conf | default({}) }}"                       # application configuration
-            app_file: "{{ apps[app].file | default([]) }}"                       # application files & directories
+            app_def: "{{ apps[app] | default({}) }}"
+
+        - name: set app properties
+          set_fact:
+            app_name: "{{ app }}"
+            app_src:  "{{ app_def.src | default(playbook_dir + '/app/' + app) }}" # override src name with app.src
+            app_dest: "{{ app_def.dest | default('/opt/' + app) }}"               # override dest name with app.dest
+            app_conf: "{{ app_def.conf | default({}) }}"                          # application configuration
+            app_file: "{{ app_def.file | default([]) }}"                          # application files & directories
 
         - name: check local app folder
           stat: path={{ app_src }}
           register: app_folder_stat
+
         - name: abort if local app not exists
           fail: {msg: "{{ app_src }} folder not exist"}
           when: not app_folder_stat.stat.exists
 
+        - name: print app details
+          debug:
+            msg: "app: {{ app_name }}, src: {{ app_src }}, dest: {{ app_dest }}, conf: {{ app_conf }}, file: {{ app_file }}"
 
     #----------------------------------------------------------#
     # Prepare files & directories                     [app_file]
