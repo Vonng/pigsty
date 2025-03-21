@@ -34,7 +34,7 @@ First, download & [install](/docs/setup/install) pigsty as usual, with the `supa
 
 Please change the `pigsty.yml` config file according to your need before deploying Supabase. (Credentials)
 
-Then, run the [`docker.yml`](https://github.com/Vonng/pigsty/blob/main/docker.yml) and [`app.yml`](https://github.com/Vonng/pigsty/blob/main/app.yml) to install supabase with docker.
+Then, run the [`docker.yml`](https://github.com/pgsty/pigsty/blob/main/docker.yml) and [`app.yml`](https://github.com/pgsty/pigsty/blob/main/app.yml) to install supabase with docker.
 
 ```bash
 ./docker.yml   # install docker & docker compose

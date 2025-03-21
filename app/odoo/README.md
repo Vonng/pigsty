@@ -13,7 +13,7 @@ Check public demo: http://odoo.pigsty.cc, username: `test@pigsty.cc`, password: 
 
 ## Get Started
 
-First, follow the standard pigsty single (or multiple if you want) node installation, using the [`conf/app/odoo`](https://github.com/Vonng/pigsty/blob/main/conf/app/odoo.yml) config template.
+First, follow the standard pigsty single (or multiple if you want) node installation, using the [`conf/app/odoo`](https://github.com/pgsty/pigsty/blob/main/conf/app/odoo.yml) config template.
 
 ```bash
 curl -fsSL https://repo.pigsty.io/pig | bash
@@ -42,7 +42,7 @@ You can add a static entry to your `/etc/hosts` file to access odoo via `http://
 
 ## Configuration
 
-There's a config template [`conf/app/odoo`](https://github.com/Vonng/pigsty/blob/main/conf/app/odoo.yml), you'd better change some credentials and make your modifications there:
+There's a config template [`conf/app/odoo`](https://github.com/pgsty/pigsty/blob/main/conf/app/odoo.yml), you'd better change some credentials and make your modifications there:
 
 ```yaml
 

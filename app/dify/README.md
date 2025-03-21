@@ -6,7 +6,7 @@ The Innovation Engine for GenAI Applications, Dify is an open-source LLM app dev
 
 - [Detailed setup tutorial](https://pigsty.io/docs/software/dify/)
 - [GitHub: langgenius/Dify](https://github.com/langgenius/dify/)
-- [Pigsty: Dify Docker Compose Template](https://github.com/Vonng/pigsty/tree/master/app/dify)
+- [Pigsty: Dify Docker Compose Template](https://github.com/pgsty/pigsty/tree/master/app/dify)
 
 
 ```bash

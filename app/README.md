@@ -22,7 +22,7 @@ Here are some docker compose templates for popular applications that works well 
 
 **Docker**
 
-You can install docker with the [`docker.yml`](https://github.com/Vonng/pigsty/blob/master/docker.yml) playbook. 
+You can install docker with the [`docker.yml`](https://github.com/pgsty/pigsty/blob/master/docker.yml) playbook. 
 If you wish to use a mirror, add them to `docker_registry_mirrors`. To use another registry: 
 
 ```bash
@@ -146,7 +146,7 @@ cat /tmp/docker.tgz | gzip -d -c - | docker load
 
 ## Visualization App
 
-Check [pigsty-app](https://github.com/Vonng/pigsty-app) for details.
+Check [pigsty-app](https://github.com/pgsty/pigsty-app) for details.
 
 Pigsty has one embed visualization app: [pglog](https://demo.pigsty.cc/d/pglog-overview) which is used for pg csv log analysis.
 

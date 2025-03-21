@@ -90,7 +90,7 @@ install:
 #
 # get latest stable version to ~/pigsty
 src:
-	curl -SL https://github.com/Vonng/pigsty/releases/download/${VERSION}/${SRC_PKG} -o ~/pigsty.tgz
+	curl -SL https://github.com/pgsty/pigsty/releases/download/${VERSION}/${SRC_PKG} -o ~/pigsty.tgz
 ###############################################################
 
 

@@ -2,18 +2,18 @@
 
 [![Webite: pigsty.io](https://img.shields.io/badge/website-pigsty.io-slategray?style=flat&logo=cilium&logoColor=white)](https://pigsty.io)
 [![Docs](https://img.shields.io/badge/docs-slategray?style=flat&logo=cilium&logoColor=white)](https://pigsty.io/docs)
-[![Version: v3.3.0](https://img.shields.io/badge/version-v3.3.0-slategray?style=flat&logo=cilium&logoColor=white)](https://github.com/Vonng/pigsty/releases/tag/v3.3.0)
-[![License: AGPLv3](https://img.shields.io/github/license/Vonng/pigsty?logo=opensourceinitiative&logoColor=green&color=slategray)](https://pigsty.io/docs/about/license/)
-[![GitHub Stars](https://img.shields.io/github/stars/Vonng/pigsty?style=flat&logo=github&logoColor=black&color=slategray)](https://star-history.com/#Vonng/pigsty&Date)
+[![Version: v3.3.0](https://img.shields.io/badge/version-v3.3.0-slategray?style=flat&logo=cilium&logoColor=white)](https://github.com/pgsty/pigsty/releases/tag/v3.3.0)
+[![License: AGPLv3](https://img.shields.io/github/license/pgsty/pigsty?logo=opensourceinitiative&logoColor=green&color=slategray)](https://pigsty.io/docs/about/license/)
+[![GitHub Stars](https://img.shields.io/github/stars/pgsty/pigsty?style=flat&logo=github&logoColor=black&color=slategray)](https://star-history.com/#pgsty/pigsty&Date)
 [![Extensions: 405](https://img.shields.io/badge/extensions-405-%233E668F?style=flat&logo=postgresql&logoColor=white&labelColor=3E668F)](https://pigsty.io/ext/list)
 
 Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **RDS** Alternative!
 
 > "**P**ostgreSQL **I**n **G**reat **STY**le": **P**ostgres, **I**nfras, **G**raphics, **S**ervice, **T**oolbox, it's all **Y**ours.
 
-[Website](https://pigsty.io/) | [Docs](https://pigsty.io/docs/) | [Extensions](https://pigsty.io/ext/) | [Demo](https://demo.pigsty.cc) | [Blog](https://pigsty.io/blog) | [Discuss](https://github.com/Vonng/pigsty/discussions) | [Support](https://pigsty.io/price) | [Extension](https://pigsty.io/about/ext) | [中文站](https://pigsty.cc) | [博客](https://pigsty.cc/blog)
+[Website](https://pigsty.io/) | [Docs](https://pigsty.io/docs/) | [Extensions](https://pigsty.io/ext/) | [Demo](https://demo.pigsty.cc) | [Blog](https://pigsty.io/blog) | [Discuss](https://github.com/pgsty/pigsty/discussions) | [Support](https://pigsty.io/price) | [Extension](https://pigsty.io/about/ext) | [中文站](https://pigsty.cc) | [博客](https://pigsty.cc/blog)
 
-[**Get Started**](https://pigsty.io/docs/setup/install/) with the latest [**v3.3.0**](https://github.com/Vonng/pigsty/releases/tag/v3.3.0): `curl -fsSL https://repo.pigsty.io/get`
+[**Get Started**](https://pigsty.io/docs/setup/install/) with the latest [**v3.3.0**](https://github.com/pgsty/pigsty/releases/tag/v3.3.0): `curl -fsSL https://repo.pigsty.io/get`
 
 [![pigsty-desc](https://pigsty.io/img/pigsty/banner.en.jpg)](https://pigsty.io)
 
@@ -24,7 +24,7 @@ Battery-Included, Local-First **PostgreSQL** Distribution as a Free & Better **R
 
 - [**Extensible**](https://pigsty.io/img/pigsty/extension.png): **405** [**PG Extensions**](https://pigsty.io/ext/list) & **6** [**PG Kernel**](https://pigsty.io/docs/kernel) replacements available (e.g., [**MSSQL**](https://pigsty.io/docs/kernel/babelfish/), [**Oracle**](https://pigsty.io/docs/kernel/ivorysql/) compatibility).
 - [**Reliable**](https://pigsty.io/img/pigsty/arch.jpg): Self-healing [**HA**](https://pigsty.io/docs/concept/ha/) clusters with pre-configured [**PITR**](https://pigsty.io/docs/pgsql/arch#point-in-time-recovery) and built-in [**ACL**](https://pigsty.io/docs/pgsql/acl), [**CA & SSL**](https://pigsty.io/docs/reference/param/#ca) secure best practice.
-- [**Observable**](https://pigsty.io/img/pigsty/dashboard.jpg): SOTA monitoring for [**PG**](https://demo.pigsty.cc/d/pgrds-instance/pgrds-instance) / [**Infra**](https://pigsty.io/docs/infra) / [**Node**](https://pigsty.io/docs/node) based on **Prometheus** & **Grafana** stack: [**Demo**](https://demo.pigsty.cc) & [**Gallery**](https://github.com/Vonng/pigsty/wiki/Gallery).
+- [**Observable**](https://pigsty.io/img/pigsty/dashboard.jpg): SOTA monitoring for [**PG**](https://demo.pigsty.cc/d/pgrds-instance/pgrds-instance) / [**Infra**](https://pigsty.io/docs/infra) / [**Node**](https://pigsty.io/docs/node) based on **Prometheus** & **Grafana** stack: [**Demo**](https://demo.pigsty.cc) & [**Gallery**](https://github.com/pgsty/pigsty/wiki/Gallery).
 - [**Available**](https://pigsty.io/img/pigsty/ha.png): Auto-routed & pooled customizable database [**Services**](https://pigsty.io/docs/concept/svc#default-service) [**Access**](https://pigsty.io/docs/concept/svc#access-service) with **haproxy**, **pgbouncer**, and **VIP**.
 - [**Maintainable**](https://pigsty.io/img/pigsty/iac.jpg): [**One-Cmd Install**](https://pigsty.io/docs/setup/install), [**Admin SOP**](https://pigsty.io/docs/pgsql/admin), **Auto-Tune**, **Local Repo**, [**IaC**](https://pigsty.io/docs/pgsql/config) and [**Vagrant**](https://pigsty.io/docs/setup/provision#vagrant) / [**Terraform**](https://pigsty.io/docs/setup/provision#terraform) support.
 - [**Composable**](https://pigsty.io/img/pigsty/sandbox.jpg): Bonus [**Modules**](https://pigsty.io/docs/about/modules) such as [**Redis**](https://pigsty.io/docs/redis), [**MinIO**](https://pigsty.io/docs/minio), [**Etcd**](https://pigsty.io/docs/etcd), [**Docker**](https://pigsty.io/docs/app), [**DuckDB**](https://pigsty.io/docs/pro/duckdb), [**FerretDB**](https://pigsty.io/docs/ferret), [**Supabase**](https://pigsty.io/docs/kernel/supabase/), [**& More**](https://pigsty.io/docs/pro/)!
@@ -105,7 +105,7 @@ $ curl -fsSL https://repo.pigsty.io/get | bash
 $ curl -fsSL https://repo.pigsty.io/get | bash
 [Site] https://pigsty.io
 [Demo] https://demo.pigsty.cc
-[Repo] https://github.com/Vonng/pigsty
+[Repo] https://github.com/pgsty/pigsty
 [Docs] https://pigsty.io/docs/setup/install
 [Download] ===========================================
 [ OK ] version = v3.3.0 (from default)
@@ -137,7 +137,7 @@ cd /root/pigsty
 You can also download the pigsty source with `git`, remember to check out a specific version tag, the `main` branch is for development.
 
 ```bash
-git clone https://github.com/Vonng/pigsty; cd pigsty; git checkout v3.3.0
+git clone https://github.com/pgsty/pigsty; cd pigsty; git checkout v3.3.0
 ```
 
 </details>
@@ -169,7 +169,7 @@ Pigsty uses a [**modular**](https://pigsty.io/docs/concept/arch/) design. There 
 You can compose them freely in a declarative manner. `INFRA` & `NODE` will suffice for host monitoring.
 `ETCD` and `PGSQL` are used for HA PG clusters; Installing them on multiple nodes automatically forms HA clusters.
 
-The default [`install.yml`](https://github.com/Vonng/pigsty/blob/main/install.yml) playbook will install `INFRA`, `NODE`, `ETCD` & `PGSQL` on the current node.
+The default [`install.yml`](https://github.com/pgsty/pigsty/blob/main/install.yml) playbook will install `INFRA`, `NODE`, `ETCD` & `PGSQL` on the current node.
 Which gives you an out-of-the-box PostgreSQL singleton instance (`admin_ip:5432`) with everything ready.
 
 [![pigsty-arch.jpg](https://pigsty.io/img/pigsty/arch.jpg)](https://pigsty.io/docs/concept/arch/)
@@ -191,7 +191,7 @@ Of course, you can deploy different kinds of HA **PostgreSQL** clusters on multi
 
 ## PostgreSQL RDS
 
-To deploy an additional 3-node HA Postgres cluster `pg-test`. Add the cluster [**definition**](https://github.com/Vonng/pigsty/blob/main/conf/full.yml#L46) to the [**config inventory**](https://pigsty.io/docs/setup/config/):
+To deploy an additional 3-node HA Postgres cluster `pg-test`. Add the cluster [**definition**](https://github.com/pgsty/pigsty/blob/main/conf/full.yml#L46) to the [**config inventory**](https://pigsty.io/docs/setup/config/):
 
 ```yaml 
 pg-test:
@@ -202,7 +202,7 @@ pg-test:
   vars: { pg_cluster: pg-test }
 ```
 
-The default config file is [`pigsty.yml`](https://github.com/Vonng/pigsty/blob/main/pigsty.yml) under pigsty home, add the snippet above to the `all.children.pg-test`,
+The default config file is [`pigsty.yml`](https://github.com/pgsty/pigsty/blob/main/pigsty.yml) under pigsty home, add the snippet above to the `all.children.pg-test`,
 Then, create the cluster with built-in playbooks in one command:
 
 ```bash
@@ -321,7 +321,7 @@ There are many built-in configuration [templates](https://pigsty.io/docs/conf) t
 
 <details><summary>Example: Sandbox (4-node) with two PG cluster</summary><br>
 
-The [`conf/full.yml`](https://github.com/Vonng/pigsty/blob/main/conf/full.yml) utilize four nodes to deploy two PostgreSQL clusters `pg-meta` and `pg-test`:
+The [`conf/full.yml`](https://github.com/pgsty/pigsty/blob/main/conf/full.yml) utilize four nodes to deploy two PostgreSQL clusters `pg-meta` and `pg-test`:
 
 ```yaml
 pg-meta:
@@ -362,7 +362,7 @@ You can even deploy PostgreSQL with different major versions and kernel forks in
 
 <details><summary>Example: Security Setup & Delayed Replica</summary><br>
 
-The following [`conf/safe.yml`](https://github.com/Vonng/pigsty/blob/main/conf/safe.yml) provision a 4-node [security](https://pigsty.io/docs/setup/security/) enhanced postgres cluster `pg-meta` with a delayed replica `pg-meta-delay`:
+The following [`conf/safe.yml`](https://github.com/pgsty/pigsty/blob/main/conf/safe.yml) provision a 4-node [security](https://pigsty.io/docs/setup/security/) enhanced postgres cluster `pg-meta` with a delayed replica `pg-meta-delay`:
 
 ```yaml
 pg-meta:      # 3 instance postgres cluster `pg-meta`
@@ -429,7 +429,7 @@ pg-meta-delay:                    # delayed instance for pg-meta (1 hour ago)
 </details>
 
 You can deploy different kinds of PostgreSQL instance such as primary, replica, offline, delayed, sync standby, etc.,
-and customize with scene-optimize [**templates**](https://github.com/Vonng/pigsty/tree/dev/conf), pre-defined [**stacks**](https://pigsty.io/docs/pgext/usage/stack) and all **405** [**extensions**](https://pigsty.io/ext/list).
+and customize with scene-optimize [**templates**](https://github.com/pgsty/pigsty/tree/dev/conf), pre-defined [**stacks**](https://pigsty.io/docs/pgext/usage/stack) and all **405** [**extensions**](https://pigsty.io/ext/list).
 
 You can define [**Users**](https://pigsty.io/docs/pgsql/user/), [**Databases**](https://pigsty.io/docs/pgsql/db/), [**Service**](https://pigsty.io/docs/pgsql/svc/), [**HBAs**](https://pigsty.io/docs/pgsql/hba/) and other entities in code and provision them in one pass.
 You can even replace the vanilla [**`PostgreSQL`**](https://pigsty.io/docs/pgsql) [**Kernel**](https://pigsty.io/docs/kernel/) with other forks as an in-place replacement: [**`Babelfish`**](https://pigsty.io/docs/kernel/babelfish/) for MSSQL compatibility,
@@ -437,7 +437,7 @@ You can even replace the vanilla [**`PostgreSQL`**](https://pigsty.io/docs/pgsql
 
 <details><summary>Example: Babelfish Cluster (MSSQL Compatible)</summary><br>
 
-The [`conf/mssql.yml`](https://github.com/Vonng/pigsty/blob/main/conf/mssql.yml) Provision a [Babelfish](https://pigsty.io/docs/kernel/babelfish/) cluster with Microsoft SQL Server compatibility:
+The [`conf/mssql.yml`](https://github.com/pgsty/pigsty/blob/main/conf/mssql.yml) Provision a [Babelfish](https://pigsty.io/docs/kernel/babelfish/) cluster with Microsoft SQL Server compatibility:
 
 ```yaml
 # ./pgsql.yml -l pg-mssql
@@ -504,7 +504,7 @@ pg-mssql:
 
 <details><summary>Example: IvorySQL Cluster (Oracle Compatible)</summary><br>
 
-The [`conf/ivory.yml`](https://github.com/Vonng/pigsty/blob/main/conf/mssql.yml) define an [IvorySQL](https://pigsty.io/docs/kernel/ivorysql/) cluster, which aims to be Oracle compatible:
+The [`conf/ivory.yml`](https://github.com/pgsty/pigsty/blob/main/conf/mssql.yml) define an [IvorySQL](https://pigsty.io/docs/kernel/ivorysql/) cluster, which aims to be Oracle compatible:
 
 ```yaml
 # ./pgsql.yml -l pg-ivory
@@ -537,7 +537,7 @@ serving MongoDB wire protocol with [**`FERRET`**](https://pigsty.io/docs/ferret/
 
 <details><summary>Example: Citus Distributed Cluster: 10-Node</summary><br>
 
-The [`conf/simu.yml`](https://github.com/Vonng/pigsty/blob/main/conf/simu.yml) provision a 10-node [**Citus**](https://pigsty.io/docs/kernel/citus/) cluster as below:
+The [`conf/simu.yml`](https://github.com/pgsty/pigsty/blob/main/conf/simu.yml) provision a 10-node [**Citus**](https://pigsty.io/docs/kernel/citus/) cluster as below:
 
 ```yaml
 # pg-citus: 10 node citus cluster (5 x primary-replica pair)
@@ -583,7 +583,7 @@ You can launch a self-hosting supabase with MinIO and PostgreSQL with just two c
 ./supabase.yml
 ```
 
-The [`conf/supa.yml`](https://github.com/Vonng/pigsty/blob/main/conf/supa.yml) just describe everything you need:
+The [`conf/supa.yml`](https://github.com/pgsty/pigsty/blob/main/conf/supa.yml) just describe everything you need:
 
 ```yaml
 # pg-meta, the underlying postgres database for supabase
@@ -692,7 +692,7 @@ Check [**compatibility**](https://pigsty.io/docs/reference/compatibility/) for d
 ## About
 
 [![Webite: pigsty.io](https://img.shields.io/badge/Website-pigsty.io-slategray?style=flat)](https://pigsty.io)
-[![Github: Discussions](https://img.shields.io/badge/GitHub-Discussions-slategray?style=flat&logo=github&logoColor=black)](https://github.com/Vonng/pigsty/discussions)
+[![Github: Discussions](https://img.shields.io/badge/GitHub-Discussions-slategray?style=flat&logo=github&logoColor=black)](https://github.com/pgsty/pigsty/discussions)
 [![Telegram: gV9zfZraNPM3YjFh](https://img.shields.io/badge/Telegram-gV9zfZraNPM3YjFh-cornflowerblue?style=flat&logo=telegram&logoColor=cornflowerblue)](https://t.me/joinchat/gV9zfZraNPM3YjFh)
 [![Discord: j5pG8qfKxU](https://img.shields.io/badge/Discord-j5pG8qfKxU-mediumpurple?style=flat&logo=discord&logoColor=mediumpurple)](https://discord.gg/j5pG8qfKxU)
 [![Wechat: pigsty-cc](https://img.shields.io/badge/WeChat-pigsty--cc-green?style=flat&logo=wechat&logoColor=green)](https://pigsty.io/img/pigsty/pigsty-cc.jpg)
