@@ -25,9 +25,9 @@ make trio       # 3-node env
 You can use variant alias to create environment with different base image:
 
 ```bash
-make meta9      # create singleton-meta node with generic/rocky9 image
-make full22     # create 4-node sandbox with generic/ubuntu22 image
-make simu12     # create 36-node simulation env with generic/debian12 image
+make meta9      # create singleton-meta node with bento/rockylinux-9 image
+make full22     # create 4-node sandbox with alvistack/ubuntu-22.04 image
+make simu12     # create 36-node simulation env with bento/debian-12 image
 ...             # available suffix: 7,8,9,11,12,20,22,24
 ```
 
@@ -66,10 +66,10 @@ Each spec file contains a `Specs` variable describe VM nodes. For example, the [
 # full: pigsty full-featured 4-node sandbox for HA-testing & tutorial & practices
 
 Specs = [
-  { "name" => "meta"   , "ip" => "10.10.10.10" ,  "cpu" => "2" ,  "mem" => "4096" ,  "image" => "generic/rocky8"  },
-  { "name" => "node-1" , "ip" => "10.10.10.11" ,  "cpu" => "1" ,  "mem" => "2048" ,  "image" => "generic/rocky8"  },
-  { "name" => "node-2" , "ip" => "10.10.10.12" ,  "cpu" => "1" ,  "mem" => "2048" ,  "image" => "generic/rocky8"  },
-  { "name" => "node-3" , "ip" => "10.10.10.13" ,  "cpu" => "1" ,  "mem" => "2048" ,  "image" => "generic/rocky8"  },
+  { "name" => "meta"   , "ip" => "10.10.10.10" ,  "cpu" => "2" ,  "mem" => "4096" ,  "image" => "bento/rockylinux-9"  },
+  { "name" => "node-1" , "ip" => "10.10.10.11" ,  "cpu" => "1" ,  "mem" => "2048" ,  "image" => "bento/rockylinux-9"  },
+  { "name" => "node-2" , "ip" => "10.10.10.12" ,  "cpu" => "1" ,  "mem" => "2048" ,  "image" => "bento/rockylinux-9"  },
+  { "name" => "node-3" , "ip" => "10.10.10.13" ,  "cpu" => "1" ,  "mem" => "2048" ,  "image" => "bento/rockylinux-9"  },
 ]
 
 ```
@@ -94,7 +94,7 @@ node.
 
 ```bash
 Specs = [
-  { "name" => "meta"          , "ip" => "10.10.10.10"   , "cpu" => "8"    , "mem" => "16384"    , "image" => "generic/rocky9"   },
+  { "name" => "meta" , "ip" => "10.10.10.10", "cpu" => "8" , "mem" => "16384" , "image" => "bento/rockylinux-9" },
 ]
 ````
 
@@ -125,12 +125,35 @@ make resume  # pause VMs (resume)
 make nuke    # destroy all vm & volumes with virsh (if using libvirt) 
 ```
 
+
+--------
+
+## Version
+
+Pigsty currently use the following vagrant boxes for testing:
+
+```bash
+$ vagrant box list
+
+el8 :  bento/rockylinux-8     (libvirt, 202502.21.0, (amd64))
+el9 :  bento/rockylinux-9     (libvirt, 202502.21.0, (amd64))
+
+d11 :  debian/bullseye64      (libvirt, 11.20241217.1, (amd64))  
+d12 :  debian/bookworm64      (libvirt, 12.20250126.1, (amd64))
+
+u20 :  alvistack/ubuntu-20.04 (libvirt, 20250316.0.0, (amd64))
+u22 :  alvistack/ubuntu-22.04 (libvirt, 20250316.0.0, (amd64))
+u24 :  alvistack/ubuntu-24.04 (libvirt, 20250316.0.0, (amd64))
+```
+
+
 --------
 
 ## Caveat
 
-If you are using virtualbox, you have to add `10.0.0.0/8` to `/etc/vbox/networks.conf` first to use 10.x.x.x in
-host-only networks.
+If you are using virtualbox as vagrant provider, 
+you have to add `10.0.0.0/8` to `/etc/vbox/networks.conf`, 
+so you can use the `10.x.x.x` CIDR as host-only networks.
 
 ```bash
 # /etc/vbox/networks.conf

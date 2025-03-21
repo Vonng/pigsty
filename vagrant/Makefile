@@ -13,7 +13,7 @@
 #                         Environment                         #
 ###############################################################
 # VAGRANT_SPEC='meta'
-# VAGRANT_IMAGE='generic/rocky9'
+# VAGRANT_IMAGE='bento/rockylinux-9'
 # VAGRANT_SCALE='1'
 # VAGRANT_PROVIDER='virtualbox'
 
